@@ -1,4 +1,4 @@
-poe
+POE
 ===
 
-Principles of Engineering
+Code and archive for Principles of Engineering.
