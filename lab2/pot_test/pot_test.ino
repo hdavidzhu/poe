@@ -12,6 +12,5 @@ void setup() {
 void loop() {
   reading = analogRead(A3);
   Serial.println(reading);
-  delay(100);
-  
+  delay(100); 
 }

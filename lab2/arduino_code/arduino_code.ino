@@ -6,6 +6,10 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_PWMServoDriver.h"
 
+
+
+// Definitions.
+
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 // Or, create it with a different I2C address (say for stacking)
@@ -16,30 +20,40 @@ Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
 // You can also make another motor on port M2
 //Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);
 
-// Definitions.
-unsigned int pot = A3;
-unsigned int pot_reading;
+int pot = A3;
+int pot_reading;
+int pot_pos;
+int final = 500;
+float error;
+float porp = 2.0;
+float d1 = 0;
+float d2 = 0;
+float diff = 0;
+float coefficient_diff = 1.0;
 
 void setup() {
   Serial.begin(9600);
-  
-  
   pinMode(pot, INPUT);
   AFMS.begin();  // create with the default frequency 1.6KHz
-  //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
-  
-  // Set the speed to start, from 0 (off) to 255 (max speed)
-  myMotor->setSpeed(255);
-  // myMotor->run(FORWARD);
-  // turn on motor
-  // myMotor->run(RELEASE);
-  
 }
 
 void loop() {
   pot_reading = analogRead(pot);
-  pot_reading = map(pot_reading,0,1024,0,255);
-  Serial.println(pot_reading);
-  myMotor->setSpeed(pot_reading);
-  myMotor->run(FORWARD);
+  error = pot_reading - final;
+  d1 = d2;
+  d2 = error;
+  diff = d2 - d1;
+  diff = coefficient_diff * diff;
+  // pot_pos = map(pot_reading,0,1024,0,255);
+  error = map(error,0,1024,0,255);
+  error = error * porp ;//+ diff;
+  if (error >= 0) {
+    myMotor->setSpeed(error);
+    myMotor->run(FORWARD);
+  }
+  else {
+    myMotor->setSpeed(-error);
+    myMotor->run(BACKWARD);
+  }
 }
+
